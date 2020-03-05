@@ -1,0 +1,6 @@
+count_words
+lexer.c
+*.o
+hello
+*.swp
+*.swo
