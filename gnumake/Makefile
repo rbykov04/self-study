@@ -1,14 +1,31 @@
-count_words: count_words.o lexer.o
-	gcc count_words.o lexer.o -lfl -o count_words
+.PHONY: clean check
 
-count_words.o: count_words.c
-	gcc -c count_words.c
+VPATH = src include
+CPPFLAGS = -I include
 
-lexer.o: lexer.c
-	gcc -c lexer.c
+count_words: count_words.o counter.o lexer.o -lfl
+	gcc $(CPPFLAGS) $^ -o $@
+
+count_words.o: count_words.c counter.h
+	gcc $(CPPFLAGS) -c $< 
+
+counter.o: counter.c include/lexer.h include/counter.h
+	gcc $(CPPFLAGS) -c $< 
+
+lexer.o: lexer.c include/lexer.h
+	gcc $(CPPFLAGS) -c $< 
 
 lexer.c: lexer.l
-	flex -t lexer.l > lexer.c
+	flex -t $< > $@
 
 hello: hello.c
-	gcc hello.c -o hello
+	gcc $(CPPFLAGS) $< -o $@
+
+
+clean:
+	rm *.o
+	rm lexer.c
+	rm count_words
+
+check: count_words
+	cat count_words.test | ./count_words
