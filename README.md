@@ -1,2 +1,2 @@
 # teach
-repo for teach
+repo for self-studing
