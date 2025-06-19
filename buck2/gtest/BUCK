@@ -1,0 +1,22 @@
+cxx_library(
+    name = "sum",
+    srcs = [ "lib.cpp" ],
+    link_style = "static",
+)
+
+cxx_binary(
+    name = "main",
+    srcs = [ "main.cpp" ],
+    deps = [ "//:sum" ],
+    link_style = "static",
+)
+
+cxx_test(
+    name = "test",
+    link_style = "static",
+    deps = [ "//:sum" ],
+    linker_flags = [ "-lgtest"],
+    srcs = [
+    "test.cpp",
+    ],
+)

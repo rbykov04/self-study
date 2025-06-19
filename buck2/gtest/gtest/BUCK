@@ -1,0 +1,40 @@
+# inspired by https://github.com/ar90n/lab/blob/main/sandbox/buck-study/gtest/gtest/BUCK
+
+git_fetch(
+    name = "googletest-src",
+    repo = "https://github.com/google/googletest.git",
+    rev  = "35b75a2cba6ef72b7ce2b6b94b05c54ca07df866",
+)
+
+genrule(
+    name = "googletest-build",
+    cmd = "install -d $(location :googletest-src)/build && \
+            cd $(location :googletest-src)/build && \
+            cmake -DCMAKE_INSTALL_PREFIX=$OUT .. && \
+            make && \
+            make install",
+    out = ".",
+)
+
+prebuilt_cxx_library(
+    name = "gtest",
+    visibility = [ "PUBLIC" ],
+    static_lib = ":googletest-build/lib/libgtest.a",
+)
+
+
+#prebuilt_cxx_library(
+#  name = "gtest-main",
+#  visibility = [ "PUBLIC", ],
+#  lib_dir = "$(location :googletest-build)/lib",
+#  include_dirs = ["$(location :googletest-build)/include"],
+#)
+
+#cxx_library(
+#  name = "gtest",
+#  visibility = [ "PUBLIC", ],
+#  deps = [
+#    ":gtest",
+#    ":gtest-main",
+#  ]
+#)
