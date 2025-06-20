@@ -1,5 +1,47 @@
-load("@prelude//toolchains:demo.bzl", "system_demo_toolchains")
+#load("@prelude//toolchains:demo.bzl", "system_demo_toolchains")
 
 # All the default toolchains, suitable for a quick demo or early prototyping.
 # Most real projects should copy/paste the implementation to configure them.
-system_demo_toolchains()
+#system_demo_toolchains()
+
+load("@prelude//toolchains:cxx.bzl", "system_cxx_toolchain")
+load("@prelude//toolchains:genrule.bzl", "system_genrule_toolchain")
+load("@prelude//toolchains:python.bzl", "system_python_bootstrap_toolchain")
+load("@prelude//toolchains:remote_test_execution.bzl", "remote_test_execution_toolchain")
+load("@prelude//tests:test_toolchain.bzl", "noop_test_toolchain")
+
+system_cxx_toolchain(
+    name = "cxx",
+    compiler_type = "clang",
+    cxx_compiler = select({
+        "prelude//os:linux": "clang++",
+    }),
+    cxx_flags = select({
+        "config//os:linux": [
+                "-std=c++2c",
+                "-Wall",
+                "-Wunused-variable",
+                "-Wunused-const-variable",],
+    }),
+    visibility = ["PUBLIC"],
+)
+
+system_genrule_toolchain(
+    name = "genrule",
+    visibility = ["PUBLIC"],
+)
+
+system_python_bootstrap_toolchain(
+    name = "python_bootstrap",
+    visibility = ["PUBLIC"],
+)
+
+remote_test_execution_toolchain(
+    name = "remote_test_execution",
+    visibility = ["PUBLIC"],
+)
+
+noop_test_toolchain(
+    name = "test",
+    visibility = ["PUBLIC"],
+)

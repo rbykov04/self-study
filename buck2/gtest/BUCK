@@ -13,10 +13,9 @@ cxx_binary(
 
 cxx_test(
     name = "test",
+    use_header_units = True,
+    env = {},
     link_style = "static",
-    deps = [ "//:sum" ],
-    linker_flags = [ "-lgtest"],
-    srcs = [
-    "test.cpp",
-    ],
+    deps = [ "//:sum" , "//gtest:gtest"],
+    srcs = ["test.cpp"],
 )

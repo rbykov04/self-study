@@ -3,17 +3,24 @@
 https://buck2.build/docs/about/getting_started/#
 
 # plan
-- [ ] fetch, build and use gtest
+- [x] fetch, build and use gtest
 - [ ] try use haskell
     - build
     - test
 - [ ] try use a few langua at once
-- [ ]
+- [ ] what is visibility = [ "PUBLIC" ],
+- [ ] what is buck2 log
+- [ ] what is prebuilt_cxx_library -> header_namespace = "gtest",
+ 
+
 
 # Q: 
-- how get log of a stage
+- Q: how get log of a stage
+    - A:  buck2 log what-failed
+    
 - why do we need system_python_bootstrap_toolchain
 - how to add cxx_test?
+
 ```
 buck2 test //:test
 File changed: root//BUCK
@@ -29,8 +36,9 @@ Caused by:
       toolchains//:cxx
 
 ```
-
-
+# links
+- https://github.com/Release-Candidate/Cxx-Buck2-vcpkg-Examples/blob/main/third-party/BUCK
+- https://github.com/ar90n/lab/blob/main/sandbox/buck-study/gtest/gtest/BUCK
 
 
 # log

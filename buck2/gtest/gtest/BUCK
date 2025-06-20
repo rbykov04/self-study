@@ -4,37 +4,85 @@ git_fetch(
     name = "googletest-src",
     repo = "https://github.com/google/googletest.git",
     rev  = "35b75a2cba6ef72b7ce2b6b94b05c54ca07df866",
+    visibility = [ "PUBLIC", ],
 )
 
 genrule(
     name = "googletest-build",
-    cmd = "install -d $(location :googletest-src)/build && \
-            cd $(location :googletest-src)/build && \
-            cmake -DCMAKE_INSTALL_PREFIX=$OUT .. && \
+    srcs = [":googletest-src"],
+    cmd = 'install -d build && \
+            cd build && \
+            cmake -DCMAKE_INSTALL_PREFIX=../../out/install \
+            -DCMAKE_CXX_STANDARD=23 \
+            -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DCMAKE_CXX_FLAGS="-fPIC" -DCMAKE_C_FLAGS="-fPIC" \
+            ../$(location :googletest-src) && \
             make && \
-            make install",
-    out = ".",
+            make install',
+    outs = {
+        "libgtest.a" : ["install/lib/libgtest.a"],
+        "libgtest_main.a" : ["install/lib/libgtest_main.a"],
+        "include" : ["install/include/gtest"],
+        "gtest.h" : ["install/include/gtest/gtest.h"],
+        "gtest-message.h": ["install/include/gtest/gtest-message.h"],
+        "gtest-matchers.h": ["install/include/gtest/gtest-matchers.h"],
+        "gtest-death-test.h": ["install/include/gtest/gtest-death-test.h"],
+        "gtest-printers.h": ["install/include/gtest/gtest-printers.h"],
+        "gtest-param-test.h": ["install/include/gtest/gtest-param-test.h"],
+        "gtest-test-part.h": ["install/include/gtest/gtest-test-part.h"],
+        "gtest-typed-test.h": ["install/include/gtest/gtest-typed-test.h"],
+        "gtest_pred_impl.h": ["install/include/gtest/gtest_pred_impl.h"],
+        "gtest_prod.h": ["install/include/gtest/gtest_prod.h"],
+        "internal/gtest-internal.h": ["install/include/gtest/internal/gtest-internal.h"],
+        "internal/gtest-filepath.h": ["install/include/gtest/internal/gtest-filepath.h"],
+        "internal/gtest-type-util.h": ["install/include/gtest/internal/gtest-type-util.h"],
+        "internal/gtest-string.h": ["install/include/gtest/internal/gtest-string.h"],
+        "internal/gtest-param-util.h": ["install/include/gtest/internal/gtest-param-util.h"],
+        "internal/gtest-death-test-internal.h": ["install/include/gtest/internal/gtest-death-test-internal.h"],
+        "internal/gtest-port.h": ["install/include/gtest/internal/gtest-port.h"],
+        "internal/custom/gtest-port.h": ["install/include/gtest/internal/custom/gtest-port.h"],
+        "internal/custom/gtest-printers.h": ["install/include/gtest/internal/custom/gtest-printers.h"],
+        "internal/gtest-port-arch.h": ["install/include/gtest/internal/gtest-port-arch.h"],
+        "gtest-assertion-result.h": ["install/include/gtest/gtest-assertion-result.h"],
+    },
+    visibility = [ "PUBLIC", ],
 )
+
 
 prebuilt_cxx_library(
     name = "gtest",
+    static_lib = ":googletest-build[libgtest.a]",
+    header_namespace = "gtest",
+    exported_headers = {
+        "gtest.h" : ":googletest-build[gtest.h]",
+        "gtest-message.h": ":googletest-build[gtest-message.h]",
+        "gtest-matchers.h": ":googletest-build[gtest-matchers.h]",
+        "gtest-death-test.h": ":googletest-build[gtest-death-test.h]",
+        "gtest-printers.h": ":googletest-build[gtest-printers.h]",
+        "gtest-param-test.h": ":googletest-build[gtest-param-test.h]",
+        "gtest-test-part.h": ":googletest-build[gtest-test-part.h]",
+        "gtest-typed-test.h": ":googletest-build[gtest-typed-test.h]",
+        "gtest_pred_impl.h": ":googletest-build[gtest_pred_impl.h]",
+        "gtest_prod.h": ":googletest-build[gtest_prod.h]",
+        "internal/gtest-internal.h": ":googletest-build[internal/gtest-internal.h]",
+        "internal/gtest-filepath.h": ":googletest-build[internal/gtest-filepath.h]",
+        "internal/gtest-type-util.h": ":googletest-build[internal/gtest-type-util.h]",
+        "internal/gtest-string.h": ":googletest-build[internal/gtest-string.h]",
+        "internal/gtest-param-util.h": ":googletest-build[internal/gtest-param-util.h]",
+        "internal/gtest-death-test-internal.h": ":googletest-build[internal/gtest-death-test-internal.h]",
+        "internal/gtest-port.h": ":googletest-build[internal/gtest-port.h]",
+        "internal/custom/gtest-port.h": ":googletest-build[internal/custom/gtest-port.h]",
+        "internal/custom/gtest-printers.h": ":googletest-build[internal/custom/gtest-printers.h]",
+        "internal/gtest-port-arch.h": ":googletest-build[internal/gtest-port-arch.h]",
+        "gtest-assertion-result.h": ":googletest-build[gtest-assertion-result.h]",
+    },
     visibility = [ "PUBLIC" ],
-    static_lib = ":googletest-build/lib/libgtest.a",
 )
 
-
-#prebuilt_cxx_library(
-#  name = "gtest-main",
-#  visibility = [ "PUBLIC", ],
-#  lib_dir = "$(location :googletest-build)/lib",
-#  include_dirs = ["$(location :googletest-build)/include"],
-#)
-
-#cxx_library(
-#  name = "gtest",
-#  visibility = [ "PUBLIC", ],
-#  deps = [
-#    ":gtest",
-#    ":gtest-main",
-#  ]
-#)
+prebuilt_cxx_library(
+    name = "gtest-main",
+    static_lib = ":googletest-build[libgtest_main.a]",
+    header_only = False,
+    visibility = [ "PUBLIC" ],
+)
