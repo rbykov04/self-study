@@ -1,0 +1,5 @@
+
+java_library(
+    name = "java_lib",
+    srcs = ["S0BasicTypes.java"],
+)

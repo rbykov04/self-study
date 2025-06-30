@@ -11,6 +11,8 @@ https://buck2.build/docs/about/getting_started/#
 - [ ] what is visibility = [ "PUBLIC" ],
 - [ ] what is buck2 log
 - [ ] what is prebuilt_cxx_library -> header_namespace = "gtest",
+- [ ] java doesn't work from the box
+
  
 
 
