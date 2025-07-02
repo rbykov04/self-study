@@ -1,0 +1,17 @@
+haskell_library(
+  name = "sum",
+  srcs = [
+    'Sum.hs',
+  ],
+  visibility = [ "PUBLIC" ],
+)
+
+haskell_binary(
+  name = 'main',
+  deps = ["//:sum"],
+  srcs = [
+    'Main.hs',
+  ],
+  visibility = [ "PUBLIC" ],
+)
+

@@ -13,6 +13,14 @@ https://buck2.build/docs/about/getting_started/#
 - [ ] what is prebuilt_cxx_library -> header_namespace = "gtest",
 - [ ] java doesn't work from the box
 
+haskell
+- [ ] pkg 
+name: root--sum
+
+    libname = repr(ctx.label.path).replace("//", "_").replace("/", "_") + "_" + ctx.label.name
+    pkgname = libname.replace("_", "-")
+https://github.com/facebook/buck2/blob/3f30c7ed9de66f09ba85e280bda2980a5174a7fe/prelude/haskell/haskell.bzl#L503
+
  
 
 
