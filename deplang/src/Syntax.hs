@@ -33,12 +33,15 @@ subst = substAt 0
 substAt :: Int -> Term -> Term -> Term
 substAt cutoff n (Var i) =
         case compare i cutoff of
+          -- Для подставляемых нам надо защитить вставляем терм
           EQ -> shift cutoff 0 n
+          -- Для свободных нужно сделать сдвиг. Это нужно чтобы
           GT -> Var (i - 1)
+          -- Это зависимые переменные мы их не трогаем
           LT -> Var i
 substAt cutoff term (Lam ty body) = Lam (substAt cutoff term ty) (substAt (cutoff + 1) term body)
 substAt cutoff term (Pi dom cod) = Pi (substAt cutoff term dom) (substAt (cutoff + 1) term cod)
-substAt cutoff term (App fun arg) = App (substAt cutoff term fun) (substAt cutoff fun arg)
+substAt cutoff term (App fun arg) = App (substAt cutoff term fun) (substAt cutoff term arg)
 substAt _ _ (Univ i) = Univ i
 
 -- prittyPrint
