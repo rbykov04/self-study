@@ -179,3 +179,54 @@ spec = do
       let expected    = Pi (Univ 0) (Lam (Var 3) (Var 4))
 
       substAt 0 replacement body `shouldBe` expected
+
+-- Тестируемая функция
+
+  describe "WHNF Reduction" $ do
+
+    context "Already in WHNF (Head Constructors)" $ do
+      it "leaves Lambda untouched" $ do
+        -- \x : Univ 0 -> x
+        let lam = Lam (Univ 0) (Var 0)
+        whnf lam `shouldBe` lam
+
+      it "leaves Variables untouched" $ do
+        whnf (Var 0) `shouldBe` Var 0
+
+      it "leaves Pi-types untouched" $ do
+        let piTerm = Pi (Univ 0) (Univ 0)
+        whnf piTerm `shouldBe` piTerm
+
+      it "leaves Universe untouched" $ do
+        whnf (Univ 0) `shouldBe` Univ 0
+
+    context "Beta Reduction (Active Computations)" $ do
+      it "performs basic beta-reduction (Identity function)" $ do
+        -- (\x : Univ 0 -> x) (Univ 0)  ==>  Univ 0
+        let idTerm = Lam (Univ 0) (Var 0)
+        let expr   = App idTerm (Univ 0)
+        whnf expr `shouldBe` Univ 0
+
+      it "reduces deeply nested applications until head is exposed" $ do
+        -- (\x : Univ 0 -> x) (\y : Univ 0 -> y) (Univ 0)  ==>  Univ 0
+        let idTerm = Lam (Univ 0) (Var 0)
+        let expr   = App (App idTerm idTerm) (Univ 0)
+        whnf expr `shouldBe` Univ 0
+
+      it "correctly handles reduction inside applications with modified bodies" $ do
+        -- (\x : Univ 0 -> \y : Univ 0 -> x) (Univ 1)  ==>  \y : Univ 0 -> Univ 1
+        let constTerm = Lam (Univ 0) (Lam (Univ 0) (Var 1))
+        let expr      = App constTerm (Univ 1)
+        let expected  = Lam (Univ 0) (Univ 1)
+        whnf expr `shouldBe` expected
+
+    context "Stuck Terms (Застрявшие термы)" $ do
+      it "stops reduction when the head is a free variable" $ do
+        -- f (Univ 0)  ==>  не вычисляется, так как 'f' — переменная
+        let expr = App (Var 0) (Univ 0)
+        whnf expr `shouldBe` expr
+
+      it "stops reduction when a nested application is stuck" $ do
+        -- (f (Univ 0)) (Univ 0)  ==>  остается неизменным
+        let expr = App (App (Var 0) (Univ 0)) (Univ 0)
+        whnf expr `shouldBe` expr

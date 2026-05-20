@@ -11,7 +11,7 @@ data Term
         | Lam Term Term
 
         | App Term Term
-        deriving (Show, Eq)
+        deriving (Eq)
 
 -- shift d c term: d - на сколько сдвигаем, c - текущая отсечка (уровень вложенности)
 shift :: Int -> Int -> Term -> Term
@@ -44,6 +44,14 @@ substAt cutoff term (Lam ty body) = Lam (substAt cutoff term ty) (substAt (cutof
 substAt cutoff term (Pi dom cod) = Pi (substAt cutoff term dom) (substAt (cutoff + 1) term cod)
 substAt cutoff term (App fun arg) = App (substAt cutoff term fun) (substAt cutoff term arg)
 substAt _ _ (Univ i) = Univ i
+
+
+-- Редукция
+whnf :: Term -> Term
+whnf (App fun arg) = case whnf fun of
+        Lam _ body   -> whnf (subst arg body)
+        stuckTerm -> App stuckTerm arg
+whnf term =  term
 
 -- prittyPrint
 allNames :: [String]
@@ -89,3 +97,6 @@ bracketArg (Pi _ _) s  = "(" ++ s ++ ")"
 bracketArg _ s         = s
 
 
+
+instance Show Term where
+    show term = prittyPrint [] term
