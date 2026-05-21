@@ -180,7 +180,6 @@ spec = do
 
       substAt 0 replacement body `shouldBe` expected
 
--- Тестируемая функция
 
   describe "WHNF Reduction" $ do
 
@@ -230,3 +229,62 @@ spec = do
         -- (f (Univ 0)) (Univ 0)  ==>  остается неизменным
         let expr = App (App (Var 0) (Univ 0)) (Univ 0)
         whnf expr `shouldBe` expr
+
+  describe "Базовое сравнение (без редукции)" $ do
+    it "Переменные с одинаковыми индексами равны" $ do
+      equal (Var 0) (Var 0) `shouldBe` True
+
+    it "Переменные с разными индексами не равны" $ do
+      equal (Var 0) (Var 1) `shouldBe` False
+
+    it "Одинаковые вселенные равны" $ do
+      equal (Univ 0) (Univ 0) `shouldBe` True
+
+  describe "Сравнение с учетом WHNF (β-редукция)" $ do
+    it "Тождественная функция, примененная к переменной, равна этой переменной" $ do
+      -- (λ(x : Univ 0). x) y  ==  y
+      -- Lam (Univ 0) (Var 0) применим к (Var 1)
+      let idLam = Lam (Univ 0) (Var 0)
+      let idApp = App idLam (Var 1)
+      equal idApp (Var 1) `shouldBe` True
+
+    it "Константная функция отбрасывает аргумент" $ do
+      -- (λ(x : Univ 0). λ(y : Univ 0). x) a b  ==  a
+      -- В индексах: App (App (Lam Univ0 (Lam Univ0 (Var 1))) (Var 0)) (Var 2) == Var 0
+      let constLam = Lam (Univ 0) (Lam (Univ 0) (Var 1))
+      let constApp = App (App constLam (Var 0)) (Var 2)
+      equal constApp (Var 0) `shouldBe` True
+
+  describe "Сравнение структур (Pi и Lam)" $ do
+    it "Сравнивает одинаковые Pi-типы" $ do
+      let pi1 = Pi (Univ 0) (Var 0)
+      let pi2 = Pi (Univ 0) (Var 0)
+      equal pi1 pi2 `shouldBe` True
+
+    it "Не путает свободные и связанные переменные внутри Pi" $ do
+      let piBinded   = Pi (Univ 0) (Var 0)
+      let piFree     = Pi (Univ 0) (Var 1)
+      equal piBinded piFree `shouldBe` False
+
+    it "Сравнивает лямбды по типу аргумента и телу" $ do
+      -- λ(x : Univ 0). x  ==  λ(y : Univ 0). y
+      let lam1 = Lam (Univ 0) (Var 0)
+      let lam2 = Lam (Univ 0) (Var 0)
+      equal lam1 lam2 `shouldBe` True
+
+  describe "Продвинутые кейсы (Редукция внутри структур)" $ do
+    it "Равенство функций, возвращающих вычисляемые типы" $ do
+      -- Π(x: (λ(z : Univ 1). z) Univ 0). x  ==  Π(x: Univ 0). x
+      let identityOnUniv = Lam (Univ 1) (Var 0)
+      let complexPi = Pi (App identityOnUniv (Univ 0)) (Var 0)
+      let normalPi  = Pi (Univ 0) (Var 0)
+      equal complexPi normalPi `shouldBe` True
+
+    it "Равенство функций высшего порядка после редукции" $ do
+      -- (λ(f : Pi Univ0 Univ0). f x) (λ(z : Univ 0). z)  ==  x
+      -- f — это Var 0, x — это Var 1 (после захода в лямбду f становится Var 0, а х сдвигается в Var 1)
+      let piType      = Pi (Univ 0) (Univ 0)
+      let higherOrder = Lam piType (App (Var 0) (Var 1))
+      let idLam       = Lam (Univ 0) (Var 0)
+      let totalApp    = App higherOrder idLam
+      equal totalApp (Var 0) `shouldBe` True

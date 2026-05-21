@@ -53,6 +53,17 @@ whnf (App fun arg) = case whnf fun of
         stuckTerm -> App stuckTerm arg
 whnf term =  term
 
+equal :: Term -> Term -> Bool
+equal t1 t2 = case (whnf t1, whnf t2) of
+  (Pi a1 b1, Pi a2 b2)   -> equal a1 a2 && equal b1 b2
+  (Lam a1 b1, Lam a2 b2)   -> equal a1 a2 && equal b1 b2
+  (App a1 b1, App a2 b2)   -> equal a1 a2 && equal b1 b2
+  (Var a, Var b)   -> a == b
+  (Var a, Var b)   -> a == b
+  (Univ a, Univ b) -> a == b
+  _ -> False
+
+
 -- prittyPrint
 allNames :: [String]
 allNames = basic ++ [ n ++ show i | i <- [1..] ,  n <- basic  ]
